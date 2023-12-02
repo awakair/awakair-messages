@@ -1,0 +1,82 @@
+\documentclass[12pt]{article}
+\title{Awakair Messages Protocol Specification}
+
+\usepackage{hyperref}
+\usepackage{enumitem}
+\setlist[enumerate]{label*=\arabic*.}
+
+\author{Sukhov Dmitry}
+\date{02.12.2023 \\ v1.0}
+
+\setcounter{secnumdepth}{0}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\section{When I should use this protocol?}
+{\large{Simple answer: you should \textbf{NOT} use this protocol.}} \\ \\
+It's invented to improve my skills in programming. \\
+I want to make something new using TCP protocol and sockets, \\ maybe add some new projects to my resume.
+\newpage
+\section{Structure}
+\begin{enumerate}
+\item Message sent via TCP protocol
+\item Message sent in big-endian format
+\item Message contains header:
+\begin{enumerate}
+\item First two bytes set to \texttt{0h414D} (AM in ASCII - Awakair Messages)
+\item Next byte set to \texttt{0h01} (protocol version)
+\item Next four bytes represent length of message in bytes
+\item Next byte represent type of message (see \hyperref[sec:types]{Types of message section})
+\end{enumerate}
+\item Optional body goes after header
+\item Message does not contains footer
+\end{enumerate}
+\newpage
+\section{Types of messages}
+Currently supported types for messages are
+\begin{enumerate}
+\item Service message - \texttt{0h01} \\
+First byte of bode sets to service message code, at the moment we have two supported codes
+\begin{enumerate}
+\item \texttt{0h00}, which we can send if there was an error due to parsing message
+\item \texttt{0h01}, which we can send if message has unsupported protocol version
+\end{enumerate}
+ Next goes optional description encoded in ASCII
+\item Text message - \texttt{0h02} \\
+Body is text encoded in ASCII
+\end{enumerate}
+\label{sec:types}
+\newpage
+\section{Examples}
+\begin{enumerate}
+\item Correct service message may look like
+\begin{enumerate}
+\item \texttt{0h414d} - magic bytes
+\item \texttt{0h01} - protocol version
+\item \texttt{0h52} - 82 bytes in body
+\item \texttt{0h01} - service message
+\item \texttt{0h01} - unsupported protocol version
+\item \texttt{Message has unsupported protocol version, last supported protocol version is v1.0} - optional description
+\end{enumerate}
+To summarize we have \\
+0h414d015201014D6573736167652068617320756E737570706 \\
+F727465642070726F746F636F6C2076657273696F6E2C206C61 \\
+737420737570706F727465642070726F746F636F6C207665727 \\
+3696F6E2069732076312E30
+\item Correct text message may look like
+\begin{enumerate}
+\item \texttt{0h414d} - magic bytes
+\item \texttt{0h01} - protocol version
+\item \texttt{0h13} - 19 bytes in body
+\item \texttt{0h02} - text message
+\item \texttt{Hello, how are you?} - message text
+\end{enumerate}
+To summarize we have
+0h414d01130248656C6C6F2C20686F772061726520796F753F
+\end{enumerate}
+\end{document}
